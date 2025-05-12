@@ -1,14 +1,10 @@
 ## EasyWrt
 
-#### 带iStore应用商店的OpenWrt
+#### 基于https://github.com/padavanonly/immortalwrt-mt798x-24.10
+#### 设备：小米AX3000T，红米AX6000
 
 ```
-固件管理ip：192.168.2.1  
+固件管理ip：192.168.5.1(小米AX3000T) | 192.168.6.1（红米AX6000）  
 用户名：root
 密码：为空
 ```
-
-
-<h4 align="left">访客数 :eyes:</h4>
-
-<p align="left"><img src="https://profile-counter.glitch.me/xiangfeidexiaohuo/count.svg" alt="xiangfeidexiaohuo :: Visitor's Count" /></p>

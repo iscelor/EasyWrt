@@ -4,6 +4,14 @@ on:
   repository_dispatch:
   workflow_dispatch:
 
+# 定时触发编译
+#  schedule:
+#    - cron: 47 18 * * 6
+
+# 点赞☆Star触发编译
+#  watch:
+#    types: [started]
+
 jobs:
   Build_mt7981_ax3000t:
     runs-on: ubuntu-latest
@@ -34,7 +42,7 @@ jobs:
     - name: Clone source code
       env: 
         REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-24.10
-        REPO_BRANCH: openwrt-24.10-6.6
+        REPO_BRANCH: 2410
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
@@ -45,9 +53,12 @@ jobs:
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
+
         ./scripts/feeds install -a
+
         cp -f ../diy/mt798x/t7op2.sh ./        
         chmod +x ./t7op2.sh && ./t7op2.sh      
+
         sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='EasyWrt-Xiaomi-AX3000T-$(date +%Y%m%d)'/g"  package/base-files/files/etc/openwrt_release
               
     - name: Configuration Customization - Build_mt7981_ax3000t
@@ -67,35 +78,7 @@ jobs:
     - name: Build firmware
       working-directory: ./openwrt
       run: |
-        echo "开始构建固件..."
-        make -j$(nproc) V=s 2>&1 | tee build.log
-        
-        # 检查构建是否成功
-        if [ ${PIPESTATUS[0]} -ne 0 ]; then
-          echo "构建失败！显示最后100行日志："
-          tail -n 100 build.log
-          exit 1
-        fi
-        
-        echo "构建完成，检查输出目录..."
-        ls -la bin/targets/ || true
-        find bin/targets/ -name "*.bin" -type f || true
-
-    - name: Check build results
-      working-directory: ./openwrt
-      run: |
-        echo "=== 检查构建结果 ==="
-        echo "bin/targets 目录结构："
-        find bin/targets/ -type f -name "*.bin" | head -20
-        
-        echo -e "\n=== 查找所有 .bin 文件 ==="
-        find bin/ -name "*.bin" -type f
-        
-        echo -e "\n=== mediatek 目录内容 ==="
-        ls -la bin/targets/mediatek/ || echo "mediatek 目录不存在"
-        
-        echo -e "\n=== mt7981 目录内容 ==="
-        ls -la bin/targets/mediatek/mt7981/ || echo "mt7981 目录不存在"
+        make -j$(nproc) V=s
         
     - name: Assemble Artifact
       id: assemble_artifact
@@ -110,41 +93,9 @@ jobs:
         md5=`echo ${md5:0:10}`
         }
         
-        # 查找实际生成的固件文件
-        echo "查找固件文件..."
-        firmware_files=$(find openwrt/bin/targets/ -name "*sysupgrade*.bin" -type f)
-        
-        if [ -z "$firmware_files" ]; then
-          echo "错误：未找到任何 sysupgrade.bin 文件"
-          echo "所有 .bin 文件："
-          find openwrt/bin/targets/ -name "*.bin" -type f
-          exit 1
-        fi
-        
-        echo "找到固件文件："
-        echo "$firmware_files"
-        
-        # 处理找到的固件文件
-        for rom in $firmware_files; do
-          if [[ $rom == *"xiaomi"* ]] && [[ $rom == *"ax3000t"* ]]; then
-            echo "处理固件文件: $rom"
-            getmd5 $rom        
-            cp -a $rom ./ARM_Out/EasyWrt-Xiaomi-AX3000T-5.4-$(date +%Y%m%d)_${md5}.bin
-            echo "固件文件已复制到 ARM_Out/"
-            break
-          fi
-        done
-        
-        # 如果没找到特定的AX3000T文件，使用第一个找到的文件
-        if [ ! -f ./ARM_Out/*.bin ]; then
-          echo "未找到AX3000T特定文件，使用第一个找到的固件文件"
-          first_firmware=$(echo "$firmware_files" | head -n1)
-          getmd5 $first_firmware
-          cp -a $first_firmware ./ARM_Out/EasyWrt-Generic-$(date +%Y%m%d)_${md5}.bin
-        fi
-        
-        echo "ARM_Out 目录内容："
-        ls -la ./ARM_Out/
+        rom=openwrt/bin/targets/mediatek/mt7981/immortalwrt-mediatek-mt7981-xiaomi_mi-router-ax3000t-squashfs-sysupgrade.bin
+        getmd5 $rom        
+        cp -a $rom ./ARM_Out/EasyWrt-Xiaomi-AX3000T-5.4-$(date +%Y%m%d)_${md5}.bin
                
     - name: Upload Firmwares
       uses: actions/upload-artifact@main
@@ -157,12 +108,6 @@ jobs:
       with:
         name: ax3000t-config
         path: openwrt/.config
-
-    - name: Upload build log
-      uses: actions/upload-artifact@main
-      with:
-        name: build-log
-        path: openwrt/build.log
 
     - name: Upload Packages
       uses: actions/upload-artifact@main
@@ -186,3 +131,5 @@ jobs:
         name: ${{ steps.generate_name.outputs.release_name }}
         tag: ${{ steps.generate_name.outputs.release_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
+        
+ 

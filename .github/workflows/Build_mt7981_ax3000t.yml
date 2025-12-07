@@ -41,8 +41,8 @@ jobs:
         
     - name: Clone source code
       env: 
-        REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-24.10
-        REPO_BRANCH: 2410
+        REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-6.6
+        REPO_BRANCH: openwrt-24.10-6.6
       run: |
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
@@ -104,7 +104,7 @@ jobs:
       uses: actions/upload-artifact@main
       with:
         name: AX3000T-OpenWrt
-        path: ARM_Out/*.bin
+        path: ARM_Out/*.*
 
     - name: Upload config
       uses: actions/upload-artifact@main

@@ -94,9 +94,9 @@ jobs:
         }
         
         
-        rom=openwrt/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootmod-squashfs-sysupgrade.bin
+        rom=openwrt/bin/targets/mediatek/filogic/immortalwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-stock-squashfs-sysupgrade.bin
         getmd5 $rom        
-        cp -a $rom ./ARM_Out/EasyWrt-Redmi-AX6000-5.4-$(date +%Y%m%d)_${md5}.bin
+        cp -a $rom ./ARM_Out/immortalwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-stock-squashfs-sysupgrade.bin
                
     - name: Upload Firmwares
       uses: actions/upload-artifact@main
@@ -128,7 +128,7 @@ jobs:
     - name: Create Release & Upload
       uses: ncipollo/release-action@v1.14.0
       with:
-        artifacts: ARM_Out/*.bin
+        artifacts: ARM_Out/*.*
         name: ${{ steps.generate_name.outputs.release_name }}
         tag: ${{ steps.generate_name.outputs.release_tag }}
         token: ${{ secrets.GITHUB_TOKEN }}

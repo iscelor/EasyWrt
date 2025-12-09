@@ -1,6 +1,6 @@
 ## EasyWrt
 
-#### 基于https://github.com/padavanonly/immortalwrt-mt798x-24.10
+#### 基于https://github.com/padavanonly/immortalwrt-mt798x-6.6
 #### 设备：小米AX3000T，红米AX6000
 
 ```

@@ -13,7 +13,8 @@ apply_lan_ip "$SRC" "${LAN_IP:-192.168.6.1}"
 
 # WiFi 的表单值由 diy/files/ax6000/etc/config/wireless 渲染进 rootfs；
 # 这里保留生成器兜底，和 AX3000T 一样避免缺少内置配置时出现开放热点。
-apply_ssid "$SRC" "ASUS" "ASUS_5G"
+# 兜底也跟随表单的 SSID（留空才用默认），避免两条路径产出的 WiFi 名不一致。
+apply_ssid "$SRC" "${SSID_2G:-ASUS}" "${SSID_5G:-ASUS_5G}"
 apply_wifi_key "$SRC"
 
 # 5G 固定 80MHz：生成器默认 HE160，占 36-64 整块，其中 52-64 属 DFS，
